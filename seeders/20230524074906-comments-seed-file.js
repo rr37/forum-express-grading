@@ -22,6 +22,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkInsert('Comments', {})
+    await queryInterface.bulkDelete('Comments', {})
   }
 }
