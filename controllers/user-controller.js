@@ -41,7 +41,10 @@ const userController = {
     return Promise.all([
       User.findByPk(req.params.id, {
         include: [
-          { model: Comment, include: Restaurant }
+          { model: Comment, include: Restaurant },
+          { model: Restaurant, as: 'FavoritedRestaurants' },
+          { model: User, as: 'Followers' },
+          { model: User, as: 'Followings' }
         ],
         nest: true
 
@@ -52,9 +55,24 @@ const userController = {
 
     ])
       .then(([user, loginUser]) => {
-        const commentTimes = req.user ? user.Comments.length ? user.Comments.length : 0 : ''
         if (!user) throw new Error("User didn't exist!")
-        res.render('users/profile', { user: user.toJSON(), loginUser, commentTimes })
+        const comments = user.toJSON().Comments
+        const notRepeatComments = []
+        const notRepeatrestId = []
+        for (let i = 0; i < comments.length; i++) {
+          if (notRepeatrestId.includes(comments[i].Restaurant.id)) {
+            console.log('跳過')
+            continue
+          }
+          notRepeatrestId.push(comments[i].Restaurant.id)
+          notRepeatComments.push(comments[i])
+        }
+        const notRepeatTimes = notRepeatComments.length
+
+        const followerCount = user.Followers.length
+        const followingCount = user.Followings.length
+        const favoritedRestaurantsCount = user.FavoritedRestaurants.length
+        res.render('users/profile', { user: user.toJSON(), loginUser, notRepeatComments, notRepeatTimes, followerCount, followingCount, favoritedRestaurantsCount })
       })
       .catch(err => next(err))
   },
