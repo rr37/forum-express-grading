@@ -14,6 +14,7 @@ router.use('/admin', authenticated, authenticatedAdmin, admin)
 router.get('/restaurants', authenticated, restController.getRestaurants)
 
 // 註冊、登入、登出
+router.post('/signup', userController.signUp)
 router.post('/signin', passport.authenticate('local', { session: false }), userController.signIn)
 
 // 錯誤處理
